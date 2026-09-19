@@ -10,9 +10,27 @@ public class SpinningRollerIntake : MonoBehaviour
     [Header("Target Destination")]
     public Transform targetPosition;
 
+    [Header("Control")]
+    [SerializeField] private KeyCode intakeKey = KeyCode.LeftShift;
+
+
+    private bool keyDown = false;
+
+    private float currentSpeedMult = 0.25f;
+    private void Update()
+    {
+        if (Input.GetKey(intakeKey))
+        {
+            currentSpeedMult = 1f;    
+        }
+        else
+        {
+            currentSpeedMult = 0.25f;   
+        }
+    }
     private void FixedUpdate()
     {
-        transform.Rotate(rotationAxis * rotationSpeed * Time.fixedDeltaTime, Space.Self);
+        transform.Rotate(rotationAxis * currentSpeedMult * rotationSpeed * Time.fixedDeltaTime, Space.Self);
     }
 
     private void OnTriggerStay(Collider other)
@@ -24,7 +42,7 @@ public class SpinningRollerIntake : MonoBehaviour
             {
                 // mov towards target in world space
                 Vector3 directionToTarget = (targetPosition.position - other.transform.position).normalized;
-                ballRb.velocity = directionToTarget * surfaceVelocity;
+                ballRb.velocity = directionToTarget * (surfaceVelocity*currentSpeedMult);
             }
         }
     }
