@@ -81,11 +81,11 @@ public class Turret : MonoBehaviour
         // F = Turn Left in World Space, H = Turn Right in World Space
         if (Input.GetKey(KeyCode.F))
         {
-            newWorldTurretAngle -= turretRotateSpeed * Time.deltaTime;
+            newWorldTurretAngle -= turretRotateSpeed/2 * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.H))
         {
-            newWorldTurretAngle += turretRotateSpeed * Time.deltaTime;
+            newWorldTurretAngle += turretRotateSpeed/2 * Time.deltaTime;
         }
 
         // G = Pitch Up, T = Pitch Down

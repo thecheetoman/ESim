@@ -4263,6 +4263,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2316739404379712111, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6274637
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316739404379712111, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.31938982
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316739404379712111, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.63285756
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316739404379712111, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.32213485
+      objectReference: {fileID: 0}
+    - target: {fileID: 2316739404379712111, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -53.954
+      objectReference: {fileID: 0}
+    - target: {fileID: 5905698893855971540, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_WheelDampingRate
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840433986138577839, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6953265443852756408, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: reverseForce
       value: 10
@@ -4307,6 +4335,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8540712238710133237, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_WheelDampingRate
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8890753517414364327, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: m_WheelDampingRate
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 8960055356378335686, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: m_Name
       value: 2658
@@ -4315,7 +4351,19 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 1554195066091645042, guid: df623fe79c8cff944892660493568455, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7196623159540442633, guid: df623fe79c8cff944892660493568455, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 8092304020929126276, guid: df623fe79c8cff944892660493568455, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 9102462949296964364, guid: df623fe79c8cff944892660493568455, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 6260275346047343767, guid: df623fe79c8cff944892660493568455, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: df623fe79c8cff944892660493568455, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

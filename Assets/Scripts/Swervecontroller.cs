@@ -289,7 +289,7 @@ namespace RobotFramework.Controllers.Drivetrain
             var pitch = Mathf.Max(accelerationFactor, rotationFactor);
 
             _treadSource.volume = volume * 0.5f;
-            _treadSource.pitch = pitch * 0.7f;
+            _treadSource.pitch = pitch * 0.6f;
             _gearSource.volume = volume * 0.2f;
 
             if (!_treadSource.isPlaying)

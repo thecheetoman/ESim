@@ -16,6 +16,7 @@ public class SlidingRack : MonoBehaviour
 
     [Header("Control Settings")]
     [SerializeField] private KeyCode intakeKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode retractKey = KeyCode.LeftControl;
 
     private bool isDeployed = false;
 
@@ -30,6 +31,10 @@ public class SlidingRack : MonoBehaviour
         if (Input.GetKeyDown(intakeKey))
         {
             isDeployed = true;
+        }
+        else if (Input.GetKeyDown(retractKey))
+        {
+            isDeployed = false;
         }
 
         Vector3 targetPosition = isDeployed ? extendedPosition : retractedPosition;

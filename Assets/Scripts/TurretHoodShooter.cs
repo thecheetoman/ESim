@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class TurretHoodShooter : MonoBehaviour
@@ -10,8 +10,27 @@ public class TurretHoodShooter : MonoBehaviour
     [Tooltip("Point at the end of the hood that defines exit angle and velocity vector")]
     public Transform hoodExitPoint;
 
-    [Header("Shooter Physics")]
-    public float exitVelocity = 18f;        // Base launch speed
+    [Header("Flywheel")]
+    [Tooltip("The flywheel that actually powers this shot. If null, falls back to exitVelocity.")]
+    public Flywheel flywheel;
+
+    [Tooltip("Fraction of the flywheel's rim speed that actually transfers to the ball " +
+             "(friction/slip losses). 1.0 = perfect transfer, unrealistic. 0.7-0.9 is typical.")]
+    [Range(0f, 1f)]
+    public float transferEfficiency = 0.85f;
+
+    [Tooltip("Minimum RPS required for a clean launch. Below this the ball still " +
+             "gets shoved out, but weakly - simulates an underpowered motor.")]
+    public float minRPSForCleanShot = 8f;
+
+    [Tooltip("How much RPS the flywheel loses when a ball takes energy from it. " +
+             "Feeds into Flywheel.ApplyLoadKick so back-to-back shots aren't identical.")]
+    public float rpsLoadKick = 6f;
+
+    [Header("Fallback (used only if flywheel is null)")]
+    public float exitVelocity = 18f;
+
+    [Header("Timing")]
     public float travelTimeThroughHood = 0.15f; // Time (in seconds) the ball takes to travel up the hood
 
     [Tooltip("Maximum angle of random deviation in degrees applied to the exit trajectory")]
@@ -31,6 +50,15 @@ public class TurretHoodShooter : MonoBehaviour
 
     [Tooltip("Additional velocity multiplier added at full hood extension (e.g. 0.5 = 1.5x total speed)")]
     public float hoodVMult = 0.5f;
+
+    private void Update()
+    {
+        // Hold Space to spin the flywheel up; release to let it coast back down.
+        if (flywheel != null)
+        {
+            flywheel.SetPowerLevel(Input.GetKey(KeyCode.Space) ? 1f : 0f);
+        }
+    }
 
     public void FeedBallIntoTurret(GameObject ball)
     {
@@ -62,48 +90,67 @@ public class TurretHoodShooter : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / travelTimeThroughHood;
 
-            // Curved path evaluation (eased motion up the hood)
             Vector3 currentPos = Vector3.Lerp(startPos, hoodExitPoint.position, t);
             ball.transform.position = currentPos;
 
             yield return null;
         }
 
-        // Ensure exact snap to exit point on final frame
         ball.transform.position = hoodExitPoint.position;
 
         // 3. Restore physics and apply exit vector with random deviation
         ballRb.isKinematic = false;
         if (ballCollider != null) ballCollider.enabled = true;
 
-        // Reset any residual velocities
         ballRb.velocity = Vector3.zero;
         ballRb.angularVelocity = Vector3.zero;
 
-        // Calculate a randomized direction vector within the specified cone angle
         Quaternion randomRotation = Quaternion.Euler(
             Random.Range(-maxDeviationAngle, maxDeviationAngle),
             Random.Range(-maxDeviationAngle, maxDeviationAngle),
             0f
         );
-
         Vector3 launchDirection = randomRotation * hoodExitPoint.forward;
 
-        // Safely map the negative angle range (-30° to 0°) to a 0.0 to 1.0 ratio
+        // --- Base speed: driven by flywheel surface speed (v = Ï‰ * r), not a flat constant ---
+        float baseSpeed;
+        if (flywheel != null)
+        {
+            float surfaceSpeed = flywheel.GetSurfaceSpeed();
+
+            // Weak/underpowered shots: below threshold, scale down further instead of
+            // hard-cutting, so it reads as "sputtering out" rather than snapping to zero.
+            float rpsRatio = flywheel.maxRPS > 0f ? flywheel.CurrentRPS / flywheel.maxRPS : 0f;
+            float thresholdRatio = flywheel.maxRPS > 0f ? minRPSForCleanShot / flywheel.maxRPS : 0f;
+            float weakShotPenalty = flywheel.CurrentRPS < minRPSForCleanShot
+                ? Mathf.Lerp(0.2f, 1f, Mathf.InverseLerp(0f, thresholdRatio, rpsRatio))
+                : 1f;
+
+            baseSpeed = surfaceSpeed * transferEfficiency * weakShotPenalty;
+        }
+        else
+        {
+            baseSpeed = exitVelocity;
+        }
+
+        // Hood angle still adds its own multiplier on top (mechanical advantage of hood extension)
         float rawAngle = (Turret != null) ? Turret.currentLocalHoodAngle : minHoodAngle;
         float normalizedHood = Mathf.InverseLerp(minHoodAngle, maxHoodAngle, rawAngle);
+        float hoodMultiplier = 1f + (normalizedHood * hoodVMult);
 
-        // Calculate multiplier: 1.0x at 0°, scaling up to (1 + hoodVMult)x at -30°
-        float velocityMultiplier = 1f + (normalizedHood * hoodVMult);
+        ballRb.velocity = launchDirection * (baseSpeed * hoodMultiplier);
 
-        ballRb.velocity = launchDirection * (exitVelocity * velocityMultiplier);
+        // Feedback: the wheel just gave up energy to the ball and needs to spin back up
+        if (flywheel != null)
+        {
+            flywheel.ApplyLoadKick(rpsLoadKick);
+        }
 
         isReadyToShoot = true;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Auto-fire trigger when a ball hits the entry zone
         if (other.CompareTag("GamePiece") && isReadyToShoot)
         {
             FeedBallIntoTurret(other.gameObject);
