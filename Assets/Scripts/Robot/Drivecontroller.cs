@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using Robot.InputHandling;
 
 namespace RobotFramework.Controllers.Drivetrain
 {
@@ -193,20 +194,11 @@ namespace RobotFramework.Controllers.Drivetrain
         // Temporary direct keyboard binding: WASD for translation, J/L for rotation.
         private void GetKeyboardInput()
         {
-            float x = 0f;
-            float y = 0f;
-
-            if (Input.GetKey(KeyCode.W)) y += 1f;
-            if (Input.GetKey(KeyCode.S)) y -= 1f;
-            if (Input.GetKey(KeyCode.D)) x += 1f;
-            if (Input.GetKey(KeyCode.A)) x -= 1f;
+            Vector2 move = PlayerInputHandler.Instance.MoveInput;
 
             if (fieldRelative)
             {
-                // Rotate the field-space stick input into the robot's local frame.
-                // To cancel the robot's own rotation we rotate by -yaw (not +yaw),
-                // offset by fieldForwardAxis's angle so that axis reads as "0 heading".
-                var driveInput = new Vector3(x, 0f, y);
+                var driveInput = new Vector3(move.x, 0f, move.y);
                 var angle = GetFieldForwardAngle() - transform.eulerAngles.y;
                 var rotated = Quaternion.AngleAxis(angle, Vector3.up) * driveInput;
 
@@ -215,15 +207,11 @@ namespace RobotFramework.Controllers.Drivetrain
             }
             else
             {
-                fwd = y * moveSpeedMultiplier;
-                str = x * moveSpeedMultiplier;
+                fwd = move.y * moveSpeedMultiplier;
+                str = move.x * moveSpeedMultiplier;
             }
 
-            float rot = 0f;
-            if (Input.GetKey(KeyCode.L)) rot -= 1f;
-            if (Input.GetKey(KeyCode.J)) rot += 1f;
-
-            rotation = rot * steerMultiplier * rotationSpeedMultiplier;
+            rotation = PlayerInputHandler.Instance.RightStickPressed ? 0f : PlayerInputHandler.Instance.RotationInput * steerMultiplier * rotationSpeedMultiplier;
         }
 
         private float GetFieldForwardAngle()

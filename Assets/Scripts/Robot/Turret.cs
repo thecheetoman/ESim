@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Robot.InputHandling;
 
 public class Turret : MonoBehaviour
 {
@@ -32,6 +33,8 @@ public class Turret : MonoBehaviour
     private float currentLocalTurretAngle = 0f;
     public float currentLocalHoodAngle = 0f;
 
+    public bool enableGamepadControl = true;
+
     void Start()
     {
         // Initialize target turret angle based on starting world direction
@@ -45,6 +48,10 @@ public class Turret : MonoBehaviour
         if (enableKeyboardControl)
         {
             HandleKeyboardInput();
+        }
+        if (enableGamepadControl)
+        {
+            HandleGamepadInput();
         }
 
         // 1. Calculate required local turret angle to maintain the desired world angle
@@ -97,6 +104,18 @@ public class Turret : MonoBehaviour
         {
             newHoodAngle -= hoodRotateSpeed * Time.deltaTime;
         }
+
+        setTurret(newWorldTurretAngle, newHoodAngle);
+    }
+    private void HandleGamepadInput()
+    {
+        if (PlayerInputHandler.Instance == null) return;
+        if (!PlayerInputHandler.Instance.RightStickPressed) return;
+
+        Vector2 stick = PlayerInputHandler.Instance.RightStickInput;
+
+        float newWorldTurretAngle = targetWorldTurretAngle + stick.x * turretRotateSpeed/3 * Time.deltaTime;
+        float newHoodAngle = targetHoodAngle + stick.y * hoodRotateSpeed/-2 * Time.deltaTime;
 
         setTurret(newWorldTurretAngle, newHoodAngle);
     }

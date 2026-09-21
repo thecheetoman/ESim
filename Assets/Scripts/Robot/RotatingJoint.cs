@@ -1,3 +1,4 @@
+using Robot.InputHandling;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,8 +17,6 @@ public class RotatingJoint : MonoBehaviour
     [Header("Control Settings")]
     [Tooltip("Key that deploys/extends the arm.")]
     [SerializeField] private KeyCode deployKey = KeyCode.LeftShift;
-    [Tooltip("Key that retracts the arm.")]
-    [SerializeField] private KeyCode retractKey = KeyCode.LeftControl;
 
     private float currentAngle;
     private bool isDeployed = false;
@@ -29,13 +28,12 @@ public class RotatingJoint : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(deployKey))
+        bool deployPressed = Input.GetKeyDown(deployKey)
+            || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.DeployPressedThisFrame());
+
+        if (deployPressed)
         {
-            isDeployed = true;
-        }
-        else if (Input.GetKeyDown(retractKey))
-        {
-            isDeployed = false;
+            isDeployed = !isDeployed;
         }
 
         float targetAngle = isDeployed ? extendedAngle : retractedAngle;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Robot.InputHandling;
 
 public class SpinningRollerIntake : MonoBehaviour
 {
@@ -19,22 +20,34 @@ public class SpinningRollerIntake : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(intakeKey))
+        bool intakePressed = Input.GetKeyDown(intakeKey)
+            || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.DeployPressedThisFrame());
+
+        if (intakePressed)
         {
-            if (!started)
+            started = !started; 
+            if (started)
             {
-                Audio.Play();
-                Audio.volume = audioVolume;
+                if (Audio != null)
+                {
+                    Audio.volume = audioVolume;
+                    Audio.Play();
+                }
             }
-            started = true;
-        }
-        else
-        {
+            else
+            {
+                if (Audio != null)
+                {
+                    Audio.Stop();
+                }
+            }
         }
     }
+
     private void FixedUpdate()
     {
-        if (started) {
+        if (started)
+        {
             transform.Rotate(rotationAxis * rotationSpeed * Time.fixedDeltaTime, Space.Self);
         }
     }
@@ -46,10 +59,10 @@ public class SpinningRollerIntake : MonoBehaviour
             Rigidbody ballRb = other.attachedRigidbody;
             if (ballRb != null && targetPosition != null)
             {
-                // mov towards target in world space
                 Vector3 directionToTarget = (targetPosition.position - other.transform.position).normalized;
-                ballRb.velocity = directionToTarget * (surfaceVelocity);
+                ballRb.velocity = directionToTarget * surfaceVelocity;
             }
         }
     }
+    public bool IsIntakeActive() => started;
 }

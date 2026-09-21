@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Robot.InputHandling;
 
 public class SlidingRack : MonoBehaviour
 {
@@ -16,7 +17,6 @@ public class SlidingRack : MonoBehaviour
 
     [Header("Control Settings")]
     [SerializeField] private KeyCode intakeKey = KeyCode.LeftShift;
-    [SerializeField] private KeyCode retractKey = KeyCode.LeftControl;
 
     private bool isDeployed = false;
 
@@ -27,14 +27,12 @@ public class SlidingRack : MonoBehaviour
 
     private void Update()
     {
-        // Once shift is pressed, deploy permanently
-        if (Input.GetKeyDown(intakeKey))
+        bool deployPressed = Input.GetKeyDown(intakeKey)
+            || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.DeployPressedThisFrame());
+
+        if (deployPressed)
         {
-            isDeployed = true;
-        }
-        else if (Input.GetKeyDown(retractKey))
-        {
-            isDeployed = false;
+            isDeployed = !isDeployed;
         }
 
         Vector3 targetPosition = isDeployed ? extendedPosition : retractedPosition;

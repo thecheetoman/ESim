@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Robot.InputHandling;
+using System.Collections;
 using UnityEngine;
 
 public class TurretHoodShooter : MonoBehaviour
@@ -56,7 +57,7 @@ public class TurretHoodShooter : MonoBehaviour
         // Hold Space to spin the flywheel up; release to let it coast back down.
         if (flywheel != null)
         {
-            flywheel.SetPowerLevel(Input.GetKey(KeyCode.Space) ? 1f : 0f);
+            flywheel.SetPowerLevel(PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot ? 1f : 0f);
         }
     }
 

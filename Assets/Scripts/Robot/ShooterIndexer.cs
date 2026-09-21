@@ -1,4 +1,5 @@
 using UnityEngine;
+using Robot.InputHandling;
 
 public class ShooterIndexer : MonoBehaviour
 {
@@ -18,7 +19,10 @@ public class ShooterIndexer : MonoBehaviour
         Rigidbody ballRb = other.attachedRigidbody;
         if (ballRb == null) return;
 
-        if (Input.GetKey(activationKey))
+        bool activationPressed = Input.GetKey(activationKey)
+            || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot);
+
+        if (activationPressed)
         {
             if (targetPoint != null)
             {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Robot.InputHandling;
 
 public class IndexerRoller : MonoBehaviour
 {
@@ -9,11 +10,11 @@ public class IndexerRoller : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (Input.GetKey(KeyCode.U))
+        if (Input.GetKey(KeyCode.U) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.reverseIndexer))
         {
             shootingMult = -5f;
         }
-        else if(Input.GetKey(KeyCode.Space))
+        else if(Input.GetKey(KeyCode.Space) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot))
         {
             shootingMult = 2.5f;
         }
