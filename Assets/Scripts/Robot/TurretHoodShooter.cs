@@ -139,6 +139,15 @@ public class TurretHoodShooter : MonoBehaviour
         float normalizedHood = Mathf.InverseLerp(minHoodAngle, maxHoodAngle, rawAngle);
         float hoodMultiplier = 1f + (normalizedHood * hoodVMult);
 
+        bool isLegal = transform.position.x < -3.6f;
+
+        ShotData shotData = ball.GetComponent<ShotData>();
+        if (shotData == null)
+        {
+            shotData = ball.AddComponent<ShotData>();
+        }
+        shotData.wasShotFromLegalZone = isLegal;
+
         ballRb.velocity = launchDirection * (baseSpeed * hoodMultiplier);
 
         // Feedback: the wheel just gave up energy to the ball and needs to spin back up

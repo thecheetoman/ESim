@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1865036527721543807}
   - component: {fileID: 5879277728870094869}
   - component: {fileID: 3984994482121729409}
-  - component: {fileID: 6717310521005971964}
+  - component: {fileID: 4864151560068857363}
   m_Layer: 0
   m_Name: Fuel
   m_TagString: GamePiece
@@ -134,7 +134,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &6717310521005971964
+--- !u!114 &4864151560068857363
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,6 +143,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5326087760068062104}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 618ec2206aa3415469a1ab9499561ff5, type: 3}
+  m_Script: {fileID: 11500000, guid: d8f1835830b0b3944979ed970f0cd68c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wasShotFromLegalZone: 0
