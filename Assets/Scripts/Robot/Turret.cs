@@ -99,10 +99,11 @@ public class Turret : MonoBehaviour
             hoodPivot.localRotation = Quaternion.AngleAxis(totalHoodAngle, hoodRotationAxis);
         }
     }
+    public float newWorldTurretAngle;
 
     private void HandleKeyboardInput()
     {
-        float newWorldTurretAngle = targetWorldTurretAngle;
+        newWorldTurretAngle = targetWorldTurretAngle;
         float newHoodAngle = targetHoodAngle;
 
         // F = Turn Left in World Space, H = Turn Right in World Space
