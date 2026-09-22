@@ -19,6 +19,7 @@ namespace RobotFramework.Controllers.Drivetrain
         [SerializeField] private float falloffPercent = 0.075f;
         [SerializeField] private int falloffExponent = 10;
         [SerializeField] private float steerMultiplier = 1f;
+        [SerializeField] private float brakingForce = 0.15f;
         [SerializeField] private float speedDebug;
 
         // Field-relative driving
@@ -76,9 +77,29 @@ namespace RobotFramework.Controllers.Drivetrain
         {
             _swerve?.UpdateAudio();
         }
+        private void OnEnable()
+        {
+            // Subscribe to state changes
+            GameManager.OnRobotStateChanged += OnRobotStateChanged;
+
+            // Sync state on initialization
+            isEnabled = GameManager.IsRobotEnabled;
+        }
+
+        private void OnDisable()
+        {
+            // Unsubscribe to avoid memory leaks
+            GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+        }
+
+        private void OnRobotStateChanged(bool enabled)
+        {
+            isEnabled = enabled;
+        }
 
         private void FixedUpdate()
         {
+            if (!isEnabled) return;
             if (_drivetrainError) return;
             if (!_drivetrainAssigned && !RuntimeCheck()) return;
 
@@ -103,7 +124,8 @@ namespace RobotFramework.Controllers.Drivetrain
                     gameObject,
                     swerveAudioMixerGroup,
                     gearAudioClip,
-                    treadAudioClip);
+                    treadAudioClip,
+                    brakingForce);
             }
         }
 

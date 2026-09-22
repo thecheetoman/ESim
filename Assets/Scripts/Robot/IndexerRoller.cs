@@ -8,13 +8,39 @@ public class IndexerRoller : MonoBehaviour
     public float indexerForce = 15f;
     private float shootingMult = 1f;
 
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+
+        if (!isEnabled)
+        {
+            shootingMult = 0f;
+        }
+    }
+
     private void OnTriggerStay(Collider other)
     {
+        if (!isEnabled) return;
+
         if (Input.GetKey(KeyCode.U) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.reverseIndexer))
         {
             shootingMult = -5f;
         }
-        else if(Input.GetKey(KeyCode.Space) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot))
+        else if (Input.GetKey(KeyCode.Space) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot))
         {
             shootingMult = 2.5f;
         }
@@ -22,6 +48,7 @@ public class IndexerRoller : MonoBehaviour
         {
             shootingMult = 1f;
         }
+
         if (other.CompareTag("GamePiece"))
         {
             Rigidbody ballRb = other.attachedRigidbody;

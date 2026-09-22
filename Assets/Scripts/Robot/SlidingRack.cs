@@ -19,6 +19,23 @@ public class SlidingRack : MonoBehaviour
     [SerializeField] private KeyCode intakeKey = KeyCode.LeftShift;
 
     private bool isDeployed = false;
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+    }
 
     private void Start()
     {
@@ -27,6 +44,8 @@ public class SlidingRack : MonoBehaviour
 
     private void Update()
     {
+        if (!isEnabled) return;
+
         bool deployPressed = Input.GetKeyDown(intakeKey)
             || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.DeployPressedThisFrame());
 
@@ -37,7 +56,6 @@ public class SlidingRack : MonoBehaviour
 
         Vector3 targetPosition = isDeployed ? extendedPosition : retractedPosition;
 
-        // Smoothly interpolate position frame by frame
         transform.localPosition = Vector3.Lerp(transform.localPosition, targetPosition, Time.deltaTime * lerpSpeed);
     }
 }

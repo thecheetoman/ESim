@@ -7,7 +7,16 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    // audio system
+    // Global event broadcast whenever the robot state toggles
+    public static event Action<bool> OnRobotStateChanged;
+
+    // Current robot state property
+    public static bool IsRobotEnabled { get; private set; } = false;
+
+    // Singleton instance
+    public static GameManager Instance { get; private set; }
+
+    // Audio system
     [Header("Audio System")]
     public AudioSource fieldSFX;
     [Tooltip("0: Match Start | 1: Auto End | 2: Teleop Start | 3: Shift Change / Alert | 4: Endgame / Shift | 5: Match End")]
@@ -22,8 +31,9 @@ public class GameManager : MonoBehaviour
 
     private bool gameStarted = false;
     private bool isMatchOver = false;
+    private bool isCountingDown = false;
 
-    // scores
+    // Scores
     private int scoreBlue = 0;
     private int scoreRed = 0;
     private int autoScoreBlue = 0;
@@ -31,7 +41,7 @@ public class GameManager : MonoBehaviour
 
     private bool isAutoPhase = false;
 
-    // hub active state tracking
+    // Hub active state tracking
     private bool isBlueHubActive = true;
     private bool isRedHubActive = true;
 
@@ -48,9 +58,20 @@ public class GameManager : MonoBehaviour
 
     private Coroutine matchRoutine;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
     private void Start()
     {
-        // Start match with active hub arrow indicators hidden
+        // Start match with robot disabled and active hub indicators hidden
+        SetRobotEnabled(false);
         SetHubStates(false, false);
 
         if (blueShift != null) blueShift.SetActive(false);
@@ -59,20 +80,42 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
 
         float totalMatchLength = autoDuration + teleopTransitionDuration + (shiftDuration * 4) + endgameDuration;
-        Debug.Log("Total Match Length: " + totalMatchLength);
         UpdateTimerUI(totalMatchLength);
     }
 
-    void Update()
+    private void Update()
     {
-        // Toggle match start using Right Shift
+        // Toggle match start or manual enable/disable using Right Shift
         if (Input.GetKeyDown(KeyCode.RightShift))
         {
             if (!gameStarted && !isMatchOver)
             {
                 startGame();
             }
+            else if (gameStarted && !isCountingDown)
+            {
+                // Manual override: toggle enable state during match (blocked during countdown)
+                SetRobotEnabled(!IsRobotEnabled);
+            }
+            else if (isMatchOver)
+            {
+                // Manual override: toggle enable state after match
+                SetRobotEnabled(!IsRobotEnabled);
+            }
         }
+    }
+
+    public void SetRobotEnabled(bool enabled)
+    {
+        // Prevent enabling if match countdown is currently running
+        if (isCountingDown && enabled)
+        {
+            enabled = false;
+        }
+
+        IsRobotEnabled = enabled;
+        OnRobotStateChanged?.Invoke(IsRobotEnabled);
+        Debug.Log(IsRobotEnabled ? "enabled" : "disabled");
     }
 
     public void startGame()
@@ -82,83 +125,86 @@ public class GameManager : MonoBehaviour
         gameStarted = true;
         isMatchOver = false;
 
-        // start the full match sequence coroutine
         matchRoutine = StartCoroutine(MatchSequence());
     }
 
     private IEnumerator MatchSequence()
     {
-        // COUNTDOWN 
+        // COUNTDOWN
+        isCountingDown = true;
+        SetRobotEnabled(false);
         for (int i = 3; i > 0; i--)
         {
             Debug.Log(i.ToString());
             yield return new WaitForSeconds(1f);
         }
+        isCountingDown = false;
 
-        // PHASE 1: AUTONOMOUS 
-        Debug.Log(" STARTING AUTONOMOUS (20s) ");
+        // PHASE 1: AUTONOMOUS (20s)
+        Debug.Log("auto");
         isAutoPhase = true;
-        PlaySound(0); // match start sfx
+        PlaySound(0); // Match start sfx
 
         SetHubStates(true, true);
+        SetRobotEnabled(true); // Enable robot for Auto
 
         yield return RunTimerSegment(autoDuration, 140f);
 
-        // PHASE 2: AUTO END 
-        Debug.Log(" END OF AUTO ");
+        // PHASE 2: AUTO END (DISABLE)
+        Debug.Log("field reset");
         isAutoPhase = false;
+        SetRobotEnabled(false); // Disable robot during transition
         SetHubStates(false, false);
-        PlaySound(1); // auto end sfx
+        PlaySound(1); // Auto end sfx
 
         yield return new WaitForSeconds(2.0f);
 
-        // DETERMINE AUTO WINNER 
+        // DETERMINE AUTO WINNER
         bool blueWonAuto = autoScoreBlue > autoScoreRed;
-
-        // If tied, default winner behavior 
         if (autoScoreBlue == autoScoreRed)
         {
             blueWonAuto = isBlueAlliance;
         }
 
-        // PHASE 3: TELEOP TRANSITION SHIFT (10s) 
+        // PHASE 3: TELEOP TRANSITION SHIFT 1/6 (10s)
         SetHubStates(true, true);
-        Debug.Log(" STARTING TELEOP: TRANSITION SHIFT 1/6 (10s) ");
+        Debug.Log("teleop ");
         PlaySound(2); // Teleop start sfx
+        SetRobotEnabled(true); // Enable robot for Teleop
 
         yield return RunTimerSegment(teleopTransitionDuration, 130f);
 
-        // SHIFT 1 / ShiftName 2/6 (25s) 
-        Debug.Log(" SHIFT 1 (2/6) ");
-        PlaySound(3); // shift sfx
-        SetHubStates(!blueWonAuto, blueWonAuto); // Auto winner is INACTIVE
+        // SHIFT 1 / 2/6 (25s)
+        Debug.Log(" shift 1 ");
+        PlaySound(3);
+        SetHubStates(!blueWonAuto, blueWonAuto);
         yield return RunTimerSegment(shiftDuration, 105f);
 
-        // SHIFT 2 / ShiftName 3/6 (25s) 
-        Debug.Log(" SHIFT 2 (3/6) ");
-        PlaySound(3); // shift sfx
-        SetHubStates(blueWonAuto, !blueWonAuto); // Auto winner is ACTIVE
+        // SHIFT 2 / 3/6 (25s)
+        Debug.Log(" shift 2 ");
+        PlaySound(3);
+        SetHubStates(blueWonAuto, !blueWonAuto);
         yield return RunTimerSegment(shiftDuration, 80f);
 
-        // SHIFT 3 / ShiftName 4/6 (25s) 
-        Debug.Log(" SHIFT 3 (4/6) ");
-        PlaySound(3); // shift sfx
-        SetHubStates(!blueWonAuto, blueWonAuto); // Auto winner is INACTIVE
+        // SHIFT 3 / 4/6 (25s)
+        Debug.Log(" shift 3 ");
+        PlaySound(3);
+        SetHubStates(!blueWonAuto, blueWonAuto);
         yield return RunTimerSegment(shiftDuration, 55f);
 
-        // SHIFT 4 / ShiftName 5/6 (25s) 
-        Debug.Log(" SHIFT 4 (5/6) ");
-        PlaySound(3); // shift sfx
-        SetHubStates(blueWonAuto, !blueWonAuto); // Auto winner is ACTIVE
+        // SHIFT 4 / 5/6 (25s)
+        Debug.Log(" shift 4 ");
+        PlaySound(3);
+        SetHubStates(blueWonAuto, !blueWonAuto);
         yield return RunTimerSegment(shiftDuration, 30f);
 
-        // ENDGAME / ShiftName 6/6 (30s) 
-        Debug.Log(" ENDGAME (6/6) ");
-        PlaySound(4); // shift sfx
-        SetHubStates(true, true); // both hubs active in endgame
+        // ENDGAME / 6/6 (30s)
+        Debug.Log(" engdame ");
+        PlaySound(4);
+        SetHubStates(true, true);
         yield return RunTimerSegment(endgameDuration, 0f);
 
-        // PHASE 4: MATCH END 
+        // MATCH END
         EndMatch();
     }
 
@@ -178,42 +224,51 @@ public class GameManager : MonoBehaviour
         isBlueHubActive = blueActive;
         isRedHubActive = redActive;
 
-        // Direct, state-driven material updates
         if (BlueHub != null) BlueHub.SetActive(isBlueHubActive);
         if (RedHub != null) RedHub.SetActive(isRedHubActive);
 
-        // Update UI indicator objects
         if (blueShift != null) blueShift.SetActive(isBlueHubActive);
         if (redShift != null) redShift.SetActive(isRedHubActive);
     }
 
     private void EndMatch()
     {
-        Debug.Log(" MATCH FINISHED ");
+        Debug.Log("wraps");
+
+        // Disable robot at match end
+        SetRobotEnabled(false);
         SetHubStates(false, false);
+
         isMatchOver = true;
         gameStarted = false;
 
-        PlaySound(5); // match end sfx
-
+        PlaySound(5); // Match end sfx
         UpdateTimerUI(0f);
+
+        // Wait 3 seconds, then re-enable for post-match
+        StartCoroutine(PostMatchEnableRoutine());
     }
 
-    // Handle scoring with legal shot validation passed from HubFuelCounter
+    private IEnumerator PostMatchEnableRoutine()
+    {
+        yield return new WaitForSeconds(3.0f);
+
+        SetRobotEnabled(true);
+        Debug.Log("reneabled");
+    }
+
     public void ScorePoint(bool isBlueHub, bool wasShotFromLegalZone)
     {
         if (!gameStarted || isMatchOver) return;
 
         if (isBlueHub)
         {
-            if (!isBlueHubActive) return; // Ignore score if Blue Hub is inactive
+            if (!isBlueHubActive) return;
 
-            // Check penalty ONLY for Blue Hub shots
             bool isPenalty = !wasShotFromLegalZone;
 
             if (isPenalty)
             {
-                // Penalty: Award 10 points to Red, 1 to Blue
                 scoreRed += 10;
                 scoreBlue += 1;
                 if (isAutoPhase)
@@ -224,16 +279,14 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // Normal Blue score
                 scoreBlue += 1;
                 if (isAutoPhase) autoScoreBlue += 1;
             }
         }
         else
         {
-            if (!isRedHubActive) return; // Ignore score if Red Hub is inactive
+            if (!isRedHubActive) return;
 
-            // Red Hub scores normally without checking legal zone
             scoreRed += 6;
             if (isAutoPhase) autoScoreRed += 6;
         }

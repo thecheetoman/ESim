@@ -52,8 +52,33 @@ public class TurretHoodShooter : MonoBehaviour
     [Tooltip("Additional velocity multiplier added at full hood extension (e.g. 0.5 = 1.5x total speed)")]
     public float hoodVMult = 0.5f;
 
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+
+        if (!isEnabled && flywheel != null)
+        {
+            flywheel.SetPowerLevel(0f);
+        }
+    }
+
     private void Update()
     {
+        if (!isEnabled) return;
+
         // Hold Space to spin the flywheel up; release to let it coast back down.
         if (flywheel != null)
         {
@@ -63,7 +88,7 @@ public class TurretHoodShooter : MonoBehaviour
 
     public void FeedBallIntoTurret(GameObject ball)
     {
-        if (!isReadyToShoot) return;
+        if (!isEnabled || !isReadyToShoot) return;
 
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         Collider ballCollider = ball.GetComponent<Collider>();
@@ -161,7 +186,7 @@ public class TurretHoodShooter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("GamePiece") && isReadyToShoot)
+        if (isEnabled && other.CompareTag("GamePiece") && isReadyToShoot)
         {
             FeedBallIntoTurret(other.gameObject);
         }

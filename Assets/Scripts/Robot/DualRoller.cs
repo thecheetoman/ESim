@@ -16,24 +16,44 @@ public class DualRoller : MonoBehaviour
     public KeyCode activeKey = KeyCode.Space;
 
     private float currentSpeed = 0f;
+    private bool isEnabled = false;
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+
+        if (!isEnabled)
+        {
+            currentSpeed = 0f;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(activeKey))
+        if (!isEnabled || shaftMesh == null) return;
+
+        if (Input.GetKey(activeKey))
         {
             currentSpeed = rotationNormal;
         }
         else
         {
-            currentSpeed = rotation2*reverseDirection;
+            currentSpeed = rotation2 * reverseDirection;
         }
+
         shaftMesh.Rotate(rotationAxis * currentSpeed * Time.deltaTime);
     }
 }

@@ -35,6 +35,24 @@ public class Turret : MonoBehaviour
 
     public bool enableGamepadControl = true;
 
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+    }
+
     void Start()
     {
         // Initialize target turret angle based on starting world direction
@@ -44,6 +62,8 @@ public class Turret : MonoBehaviour
 
     void Update()
     {
+        if (!isEnabled) return;
+
         // Handle keyboard input for manual control
         if (enableKeyboardControl)
         {
@@ -88,11 +108,11 @@ public class Turret : MonoBehaviour
         // F = Turn Left in World Space, H = Turn Right in World Space
         if (Input.GetKey(KeyCode.F))
         {
-            newWorldTurretAngle -= turretRotateSpeed/2 * Time.deltaTime;
+            newWorldTurretAngle -= turretRotateSpeed / 2 * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.H))
         {
-            newWorldTurretAngle += turretRotateSpeed/2 * Time.deltaTime;
+            newWorldTurretAngle += turretRotateSpeed / 2 * Time.deltaTime;
         }
 
         // G = Pitch Up, T = Pitch Down
@@ -107,6 +127,7 @@ public class Turret : MonoBehaviour
 
         setTurret(newWorldTurretAngle, newHoodAngle);
     }
+
     private void HandleGamepadInput()
     {
         if (PlayerInputHandler.Instance == null) return;
@@ -114,8 +135,8 @@ public class Turret : MonoBehaviour
 
         Vector2 stick = PlayerInputHandler.Instance.RightStickInput;
 
-        float newWorldTurretAngle = targetWorldTurretAngle + stick.x * turretRotateSpeed/3 * Time.deltaTime;
-        float newHoodAngle = targetHoodAngle + stick.y * hoodRotateSpeed/-2 * Time.deltaTime;
+        float newWorldTurretAngle = targetWorldTurretAngle + stick.x * turretRotateSpeed / 3 * Time.deltaTime;
+        float newHoodAngle = targetHoodAngle + stick.y * hoodRotateSpeed / -2 * Time.deltaTime;
 
         setTurret(newWorldTurretAngle, newHoodAngle);
     }

@@ -12,8 +12,27 @@ public class ShooterIndexer : MonoBehaviour
     [Header("Input Settings")]
     public KeyCode activationKey = KeyCode.Space;
 
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+    }
+
     private void OnTriggerStay(Collider other)
     {
+        if (!isEnabled) return;
         if (!other.CompareTag("GamePiece")) return;
 
         Rigidbody ballRb = other.attachedRigidbody;

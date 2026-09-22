@@ -20,6 +20,24 @@ public class RotatingJoint : MonoBehaviour
 
     private float currentAngle;
     private bool isDeployed = false;
+    private bool isEnabled = false;
+
+    private void OnEnable()
+    {
+        GameManager.OnRobotStateChanged += OnRobotStateChanged;
+
+        isEnabled = GameManager.IsRobotEnabled;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRobotStateChanged -= OnRobotStateChanged;
+    }
+
+    private void OnRobotStateChanged(bool enabled)
+    {
+        isEnabled = enabled;
+    }
 
     void Start()
     {
@@ -28,6 +46,8 @@ public class RotatingJoint : MonoBehaviour
 
     void Update()
     {
+        if (!isEnabled) return;
+
         bool deployPressed = Input.GetKeyDown(deployKey)
             || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.DeployPressedThisFrame());
 

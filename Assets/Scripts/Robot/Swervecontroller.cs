@@ -3,17 +3,6 @@ using UnityEngine.Audio;
 
 namespace RobotFramework.Controllers.Drivetrain
 {
-    /// <summary>
-    /// Swerve drivetrain kinematics + per-module force application + drive audio,
-    /// extracted from DriveController.cs. Handles: module discovery, chassis-to-module
-    /// inverse kinematics (GenerateSwerveSetpoints), ground contact detection, the
-    /// velocity-falloff-based propulsion force applied at each wheel's contact point,
-    /// and tread/gear sound driven off rigidbody velocity.
-    ///
-    /// This class intentionally omits input handling (field/robot relative stick
-    /// reading) and PlayerPrefs — those stay in the higher-level DriveController and
-    /// should call into this class with normalized fwd/str/rotation values.
-    /// </summary>
     public class SwerveController
     {
         // ---- Dependencies (wired up by the owning MonoBehaviour) ----
@@ -26,6 +15,10 @@ namespace RobotFramework.Controllers.Drivetrain
         private readonly float _accelerationForce;
         private readonly float _falloffPercent;
         private readonly int _falloffExponent;
+        private readonly float _brakingForce;
+
+        // Below this magnitude, fwd/str/rotation are treated as "no input".
+        private const float InputDeadzone = 0.001f;
 
         // ---- Derived / cached ----
         private float _maxSpeedMeters;
@@ -69,6 +62,12 @@ namespace RobotFramework.Controllers.Drivetrain
         /// GameObject the two AudioSources (gear + tread) get attached to — pass the
         /// same object your DriveController lives on.
         /// </param>
+        /// <param name="brakingForce">
+        /// Magnitude of the impulse (in the rigidbody's velocity-opposing direction)
+        /// applied every Drive() call when fwd/str/rotation are all ~0. Keep this
+        /// small — it's meant to bleed off residual drift/momentum, not stop the
+        /// robot on a dime.
+        /// </param>
         public SwerveController(
             Rigidbody rb,
             Transform wheelChild,
@@ -80,7 +79,8 @@ namespace RobotFramework.Controllers.Drivetrain
             GameObject audioHost,
             AudioMixerGroup swerveAudioMixerGroup,
             AudioClip gearAudioClip,
-            AudioClip treadAudioClip)
+            AudioClip treadAudioClip,
+            float brakingForce = 0.15f)
         {
             _rb = rb;
             _wheelChild = wheelChild;
@@ -89,6 +89,7 @@ namespace RobotFramework.Controllers.Drivetrain
             _accelerationForce = accelerationForce;
             _falloffPercent = falloffPercent;
             _falloffExponent = falloffExponent;
+            _brakingForce = brakingForce;
 
             _fieldLayerMask = 1 << LayerMask.NameToLayer("Robot");
 
@@ -109,11 +110,6 @@ namespace RobotFramework.Controllers.Drivetrain
             return source;
         }
 
-        /// <summary>
-        /// Locates the FL/FR/BL/BR SwerveWheel children and computes chassis
-        /// geometry (length, width, turning radius) used by the kinematics.
-        /// Returns false (and logs) if any module is missing.
-        /// </summary>
         public bool AssignSwerveWheels()
         {
             var wheelNames = new[] { "FL", "FR", "BL", "BR" };
@@ -143,16 +139,22 @@ namespace RobotFramework.Controllers.Drivetrain
         /// <summary>
         /// Runs one full swerve update: computes module setpoints from normalized
         /// fwd/str/rotation inputs (each expected in roughly [-1, 1]) and drives
-        /// every module. Call once per FixedUpdate.
+        /// every module. When there's no input at all, applies a small braking
+        /// impulse instead of letting the robot coast freely. Call once per FixedUpdate.
         /// </summary>
         public void Drive(float fwd, float str, float rotation)
         {
             _rb.maxLinearVelocity = _maxSpeedFeetPerSec * FEET_TO_METERS;
 
-            GenerateSwerveSetpoints(
-                Mathf.Clamp(fwd, -1, 1),
-                Mathf.Clamp(str, -1, 1),
-                Mathf.Clamp(rotation, -1, 1));
+            fwd = Mathf.Clamp(fwd, -1, 1);
+            str = Mathf.Clamp(str, -1, 1);
+            rotation = Mathf.Clamp(rotation, -1, 1);
+
+            bool hasInput = Mathf.Abs(fwd) > InputDeadzone
+                || Mathf.Abs(str) > InputDeadzone
+                || Mathf.Abs(rotation) > InputDeadzone;
+
+            GenerateSwerveSetpoints(fwd, str, rotation);
 
             IsTouchingGround = false;
 
@@ -160,12 +162,29 @@ namespace RobotFramework.Controllers.Drivetrain
             RunSwerveModuleSphere(FR_MODULE);
             RunSwerveModuleSphere(BL_MODULE);
             RunSwerveModuleSphere(BR_MODULE);
+
+            if (!hasInput && IsTouchingGround)
+            {
+                ApplyBraking();
+            }
         }
 
         /// <summary>
-        /// Inverse kinematics: converts chassis-space fwd/str/rotation into a
-        /// per-module (angle, speed) setpoint using the classic swerve formulas.
+        /// Applies a small impulse opposing current linear velocity, capped so it
+        /// can't overshoot and reverse the robot's direction in a single step.
         /// </summary>
+        private void ApplyBraking()
+        {
+            Vector3 velocity = _rb.velocity;
+            float speed = velocity.magnitude;
+            if (speed < 0.001f) return;
+
+            float impulseMag = Mathf.Min(_brakingForce, speed * _rb.mass);
+            Vector3 brakeImpulse = -velocity.normalized * impulseMag;
+
+            _rb.AddForce(brakeImpulse, ForceMode.Impulse);
+        }
+
         private void GenerateSwerveSetpoints(float fwd, float str, float rotation)
         {
             var a = str - rotation * (_length / _radius);
@@ -184,18 +203,12 @@ namespace RobotFramework.Controllers.Drivetrain
             var speed = Mathf.Sqrt(x * x + y * y);
             _swerveSetpoints[moduleIndex].Velocity = speed;
 
-            // Only update angle if there's movement, so modules hold heading
-            // when speed drops to zero rather than snapping to 0 deg.
             if (speed > 0f)
             {
                 _swerveSetpoints[moduleIndex].Angle = Mathf.Atan2(x, y) * RAD_TO_DEG;
             }
         }
 
-        /// <summary>
-        /// Ground-contact check for a module via a short spherecast down the
-        /// wheel's local up axis, then applies propulsion force at the contact point.
-        /// </summary>
         private void RunSwerveModuleSphere(int moduleIndex)
         {
             var module = _swerveWheels[moduleIndex];
@@ -219,7 +232,6 @@ namespace RobotFramework.Controllers.Drivetrain
             var module = _swerveWheels[moduleIndex];
             var setpoint = _swerveSetpoints[moduleIndex];
 
-            // Ground speed along the module's forward axis.
             var realGroundSpeed = module.transform.InverseTransformVector(
                 _rb.GetPointVelocity(module.transform.position)).z;
 
@@ -235,11 +247,6 @@ namespace RobotFramework.Controllers.Drivetrain
 
             module.wheelAngle = module.transform.localRotation.eulerAngles.y;
         }
-
-        // ---- Velocity falloff lookup table ----
-        // Precomputes Pow(1 - speedRatio * falloffPercent, falloffExponent) across
-        // a fixed resolution so per-module force application avoids a Pow() call
-        // every physics step.
 
         private void BuildFalloffLookupTable()
         {
@@ -262,10 +269,6 @@ namespace RobotFramework.Controllers.Drivetrain
 
             return _falloffLookup[index];
         }
-
-        // ---- Drive audio ----
-        // Call once per Update() (not FixedUpdate) — this is presentation, not
-        // physics, and doesn't need to run at a fixed timestep.
 
         public void UpdateAudio()
         {

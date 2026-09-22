@@ -42814,8 +42814,8 @@ Rigidbody:
   m_GameObject: {fileID: 8960055356378335686}
   serializedVersion: 4
   m_Mass: 1000
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Drag: 3
+  m_AngularDrag: 1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -42853,7 +42853,7 @@ MonoBehaviour:
   steerMultiplier: 1
   speedDebug: 0
   fieldRelative: 1
-  fieldForwardAxis: 0
+  fieldForwardAxis: 1
   swerveAudioMixerGroup: {fileID: 0}
   gearAudioClip: {fileID: 8300000, guid: b569df4a757c79c418406273b7f2a127, type: 3}
   treadAudioClip: {fileID: 8300000, guid: c02884c9e7aa7624c97b4ea61d4518a2, type: 3}
