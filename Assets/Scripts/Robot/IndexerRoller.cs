@@ -38,7 +38,7 @@ public class IndexerRoller : MonoBehaviour
 
         if (Input.GetKey(KeyCode.U) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.reverseIndexer))
         {
-            shootingMult = -5f;
+            shootingMult = -20f;
         }
         else if (Input.GetKey(KeyCode.Space) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot))
         {

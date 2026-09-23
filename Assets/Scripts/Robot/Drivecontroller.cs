@@ -49,6 +49,10 @@ namespace RobotFramework.Controllers.Drivetrain
         // Standalone enable flag, replacing the old BaseGameManager.RobotState gate.
         // Flip this off (e.g. from a match-state manager, a pause menu, etc.) to
         // zero out drive input without touching anything else in this script.
+        // NOTE: FixedUpdate no longer early-outs on this — RunSwerve() still runs
+        // while disabled so the braking force in SwerveController.Drive() (which
+        // fires whenever fwd/str/rotation are all zero) keeps bleeding off residual
+        // velocity instead of the robot coasting forever once disabled.
         public bool isEnabled = true;
 
         private bool _drivetrainAssigned;
@@ -99,7 +103,6 @@ namespace RobotFramework.Controllers.Drivetrain
 
         private void FixedUpdate()
         {
-            if (!isEnabled) return;
             if (_drivetrainError) return;
             if (!_drivetrainAssigned && !RuntimeCheck()) return;
 
@@ -168,7 +171,7 @@ namespace RobotFramework.Controllers.Drivetrain
 
         private bool RuntimeCheck()
         {
-            if (_setupError || !isEnabled)
+            if (_setupError)
                 return false;
 
             if (!_drivetrainAssigned)
