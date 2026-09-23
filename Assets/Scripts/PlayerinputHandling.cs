@@ -31,6 +31,8 @@ namespace Robot.InputHandling
 
         private InputAction _reversingIndexer;
 
+        private InputAction _toggleTracking;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -78,6 +80,10 @@ namespace Robot.InputHandling
             _reversingIndexer = new InputAction("ReverseIndexer", InputActionType.Button);
             _reversingIndexer.AddBinding("<Keyboard>/u");
             _reversingIndexer.AddBinding("<Gamepad>/rightShoulder");
+
+            _toggleTracking = new InputAction("ToggleTracking", InputActionType.Button);
+            _toggleTracking.AddBinding("<Keyboard>/k");
+            _toggleTracking.AddBinding("<Gamepad>/buttonWest");
         }
 
         private void OnEnable()
@@ -89,6 +95,7 @@ namespace Robot.InputHandling
             _shoot.Enable();
             _intakeOut.Enable();
             _reversingIndexer.Enable();
+            _toggleTracking.Enable();
         }
 
         private void OnDisable()
@@ -100,6 +107,7 @@ namespace Robot.InputHandling
             _shoot.Disable();
             _intakeOut.Disable();
             _reversingIndexer.Disable();
+            _toggleTracking.Disable();
         }
 
         private void Update()
@@ -120,6 +128,11 @@ namespace Robot.InputHandling
         {
             return _intakeOut != null && _intakeOut.WasPressedThisFrame();
 
+        }
+
+        public bool ToggleTrackingPressedThisFrame()
+        {
+            return _toggleTracking != null && _toggleTracking.WasPressedThisFrame();
         }
     }
 }

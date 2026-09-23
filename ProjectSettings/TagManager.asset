@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GamePiece
   - HubAprilTag
+  - Hub
   layers:
   - Default
   - TransparentFX
