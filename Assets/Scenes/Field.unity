@@ -90184,17 +90184,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 137341320493897756, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: indexerForce
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 924304700263023474, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: indexerForce
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: maxRPS
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: spinUpTime
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].time
-      value: 0.28589064
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].time
-      value: 1
+      value: 0.47336435
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].time
@@ -90206,11 +90222,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].value
-      value: 0.67475706
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].value
-      value: 1
+      value: 0.7778732
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].value
@@ -90222,19 +90238,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[0].inSlope
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].inSlope
-      value: 1.2282066
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].inSlope
-      value: 0
+      value: 0.38993132
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].inSlope
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[4].inSlope
@@ -90242,23 +90258,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[0].outSlope
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].inWeight
-      value: 0.33333334
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].outSlope
-      value: 1.2282066
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].inWeight
-      value: 0
+      value: 0.39326707
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].outSlope
-      value: 0
+      value: 0.38993132
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].inWeight
@@ -90266,7 +90282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].outSlope
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[4].outSlope
@@ -90274,15 +90290,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[1].outWeight
-      value: 0.33333334
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[2].outWeight
-      value: 0
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: spinUpCurve.m_Curve.Array.data[3].outWeight
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: spinUpCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852701587518089227, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: spinUpCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 3022491033254857761, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: rayCount
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 4643004727405948423, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: indexerForce
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5026298332852571541, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: m_Name
@@ -90328,9 +90360,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8014593913738767018, guid: df623fe79c8cff944892660493568455, type: 3}
+      propertyPath: indexerForce
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 9110333898386934748, guid: df623fe79c8cff944892660493568455, type: 3}
       propertyPath: hoodAimAngleOffset
-      value: -2.5
+      value: -5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

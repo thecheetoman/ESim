@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -102,6 +103,16 @@ public class GameManager : MonoBehaviour
                 // Manual override: toggle enable state after match
                 SetRobotEnabled(!IsRobotEnabled);
             }
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            // restart to main menu
+            SceneManager.LoadScene("Field");
+        }
+        //DE#BUGGING R#EMOV WHEN BUOLD
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.developerConsoleVisible = !Debug.developerConsoleVisible;
         }
     }
 

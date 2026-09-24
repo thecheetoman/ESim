@@ -70,6 +70,7 @@ public class CV : MonoBehaviour
             {
                 if (hit.collider.CompareTag(targetTag))
                 {
+                    Debug.Log("Hub Visible");
                     TargetVisible = true;
                     VisibleTarget = hit.collider.transform;
                     if (logHits)
