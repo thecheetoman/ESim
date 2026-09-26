@@ -100,14 +100,14 @@ namespace Robot.InputHandling
 
         private void OnDisable()
         {
-            _moveAction.Disable();
-            _rotateAction.Disable();
-            _rightStickAction.Disable();
-            _rightStickPressAction.Disable();
-            _shoot.Disable();
-            _intakeOut.Disable();
-            _reversingIndexer.Disable();
-            _toggleTracking.Disable();
+            _moveAction?.Disable();
+            _rotateAction?.Disable();
+            _rightStickAction?.Disable();
+            _rightStickPressAction?.Disable();
+            _shoot?.Disable();
+            _intakeOut?.Disable();
+            _reversingIndexer?.Disable();
+            _toggleTracking?.Disable();
         }
 
         private void Update()

@@ -29,7 +29,7 @@ public class Turret : MonoBehaviour
     [Header("Control Settings")]
     public bool enableKeyboardControl = true; // Toggle manual key controls
     [Tooltip("Mode while robot is enabled. K switches Manual -> TrackingHub (needs CV target).")]
-    [SerializeField] private TurretMode mode = TurretMode.Manual;
+    [SerializeField] public TurretMode mode = TurretMode.Manual;
     [SerializeField] private KeyCode trackingKey = KeyCode.K;
     [Tooltip("CV scanner used to gate tracking. Auto-found if empty.")]
     [SerializeField] private CV cv;

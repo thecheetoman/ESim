@@ -42,7 +42,7 @@ public class IndexerRoller : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.Space) || (PlayerInputHandler.Instance != null && PlayerInputHandler.Instance.Shoot))
         {
-            shootingMult = 2.5f;
+            shootingMult = 1.2f;
         }
         else
         {
